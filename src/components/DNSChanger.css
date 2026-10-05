@@ -1,0 +1,154 @@
+.dns-actions-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.dns-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.dns-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.dns-recommended {
+  border-color: rgba(108, 92, 231, 0.3);
+  background: rgba(108, 92, 231, 0.04);
+}
+
+.dns-recommended-badge {
+  position: absolute;
+  top: -1px;
+  right: 16px;
+  background: var(--gradient-1);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 0 0 8px 8px;
+  letter-spacing: 0.5px;
+}
+
+.dns-card-header {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.dns-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.dns-card-header h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.dns-card-header p {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.dns-addresses {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dns-address {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.dns-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.dns-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--accent-secondary);
+  font-weight: 500;
+}
+
+.dns-test-result {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+}
+
+.dns-test-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.dns-test-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.dns-card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-color);
+}
+
+.dns-card-actions .btn {
+  flex: 1;
+}
+
+.custom-dns-card h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.custom-dns-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.custom-dns-inputs {
+  display: flex;
+  gap: 14px;
+  align-items: flex-end;
+}
+
+.custom-dns-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.custom-dns-field label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}

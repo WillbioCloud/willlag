@@ -1,0 +1,138 @@
+.monitor-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+  margin-bottom: 20px;
+}
+
+.monitor-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 250px;
+}
+
+.monitor-input-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.monitor-presets {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.active-preset {
+  background: rgba(108, 92, 231, 0.15) !important;
+  border-color: var(--accent-primary) !important;
+  color: var(--accent-secondary) !important;
+}
+
+.monitor-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.monitor-stats {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.stat-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+
+.stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.stat-value {
+  font-size: 22px;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.graph-card {
+  margin-bottom: 0;
+}
+
+.graph-host {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.graph-container {
+  width: 100%;
+  height: 250px;
+  position: relative;
+}
+
+.ping-canvas {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+}
+
+.connections-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.connections-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.connections-list::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 2px;
+}
+
+.connection-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+}
+
+.conn-pid {
+  color: var(--text-muted);
+  min-width: 80px;
+}
+
+.conn-local {
+  color: var(--accent-secondary);
+}
+
+.conn-arrow {
+  color: var(--text-muted);
+}
+
+.conn-remote {
+  color: var(--text-primary);
+  flex: 1;
+}
