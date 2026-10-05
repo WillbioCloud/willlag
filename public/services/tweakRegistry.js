@@ -163,7 +163,7 @@ function getCatalog() {
     groups: Object.values(GROUPS),
     riskLabels: RISK_LABELS,
     tweaks: ALL_TWEAKS.map(toCatalogEntry),
-    presets: getPresets(),
+    presets: Object.values(getPresets()),
     settings: stateStore.getSettings(),
   };
 }
