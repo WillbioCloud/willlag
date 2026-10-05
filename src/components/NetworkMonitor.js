@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
+import ipc from '../services/ipc';
 import './NetworkMonitor.css';
 
-const { ipcRenderer } = window.require('electron');
 
 function NetworkMonitor({ showNotification }) {
   const [pingHistory, setPingHistory] = useState([]);
@@ -19,7 +19,7 @@ function NetworkMonitor({ showNotification }) {
   }, []);
 
   useEffect(() => {
-    const handler = (event, data) => {
+    const handler = (data) => {
       setPingHistory(prev => {
         const newHistory = [...prev, data].slice(-maxHistory);
         calculateStats(newHistory);
@@ -27,10 +27,10 @@ function NetworkMonitor({ showNotification }) {
       });
     };
 
-    ipcRenderer.on('ping-result', handler);
+    const off = ipc.on('ping-result', handler);
 
     return () => {
-      ipcRenderer.removeListener('ping-result', handler);
+      off();
     };
   }, []);
 
@@ -39,7 +39,7 @@ function NetworkMonitor({ showNotification }) {
   }, [pingHistory]);
 
   const loadConnections = async () => {
-    const conns = await ipcRenderer.invoke('get-network-connections');
+    const conns = await ipc.invoke('get-network-connections');
     setConnections(conns);
   };
 
@@ -214,13 +214,13 @@ function NetworkMonitor({ showNotification }) {
   const startMonitoring = () => {
     setPingHistory([]);
     setMonitoring(true);
-    ipcRenderer.send('start-ping-monitor', host);
+    ipc.send('start-ping-monitor', host);
     showNotification(`Monitorando ${host}...`, 'info');
   };
 
   const stopMonitoring = () => {
     setMonitoring(false);
-    ipcRenderer.send('stop-ping-monitor');
+    ipc.send('stop-ping-monitor');
     showNotification('Monitoramento parado', 'info');
   };
 

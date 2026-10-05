@@ -146,3 +146,20 @@
   border-radius: 6px;
   min-width: 100px;
 }
+/* ============ v2.0: processos protegidos / que consomem banda ============ */
+.process-table tr.protected-process {
+  background: rgba(255, 71, 87, 0.05);
+}
+
+.process-table tr.protected-process .process-actions {
+  opacity: 0.55;
+}
+
+.process-table tr.hog-process {
+  background: rgba(255, 170, 0, 0.045);
+}
+
+.process-table tr.protected-process:hover,
+.process-table tr.hog-process:hover {
+  filter: brightness(1.25);
+}

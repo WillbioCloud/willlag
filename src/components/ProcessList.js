@@ -1,7 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import ipc from '../services/ipc';
+import {
+  isGame,
+  isBandwidthHog,
+  isProtected,
+  recommendFor,
+  filterProcesses,
+  PRIORITY_OPTIONS,
+} from './utils/processManager';
 import './ProcessList.css';
 
-const { ipcRenderer } = window.require('electron');
 
 function ProcessList({ isAdmin, showNotification }) {
   const [processes, setProcesses] = useState([]);
@@ -11,7 +19,7 @@ function ProcessList({ isAdmin, showNotification }) {
 
   const loadProcesses = useCallback(async () => {
     setLoading(true);
-    const procs = await ipcRenderer.invoke('get-processes');
+    const procs = await ipc.invoke('get-processes');
     setProcesses(procs);
     setLoading(false);
   }, []);
@@ -29,7 +37,7 @@ function ProcessList({ isAdmin, showNotification }) {
     }
 
     setOptimizingPid(process.pid);
-    const result = await ipcRenderer.invoke('optimize-for-process', process.pid, process.name);
+    const result = await ipc.invoke('optimize-for-process', process.pid, process.name);
 
     if (result.success) {
       showNotification(result.message, 'success');
@@ -40,7 +48,7 @@ function ProcessList({ isAdmin, showNotification }) {
   };
 
   const handleSetPriority = async (pid, priority) => {
-    const result = await ipcRenderer.invoke('set-process-priority', pid, priority);
+    const result = await ipc.invoke('set-process-priority', pid, priority);
     if (result.success) {
       showNotification(result.message, 'success');
     } else {
@@ -54,7 +62,7 @@ function ProcessList({ isAdmin, showNotification }) {
       return;
     }
 
-    const result = await ipcRenderer.invoke('set-network-priority', processName);
+    const result = await ipc.invoke('set-network-priority', processName);
     if (result.success) {
       showNotification(result.message, 'success');
     } else {
@@ -62,18 +70,7 @@ function ProcessList({ isAdmin, showNotification }) {
     }
   };
 
-  const filteredProcesses = processes.filter(p =>
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const gameKeywords = ['game', 'steam', 'epic', 'riot', 'valorant', 'fortnite', 'league',
-    'csgo', 'cs2', 'apex', 'overwatch', 'minecraft', 'roblox', 'gta', 'cod',
-    'battlenet', 'origin', 'ubisoft', 'blizzard', 'discord'];
-
-  const isGame = (name) => {
-    return gameKeywords.some(kw => name.toLowerCase().includes(kw));
-  };
+  const filteredProcesses = filterProcesses(processes, searchTerm);
 
   return (
     <div className="process-list">
@@ -110,13 +107,23 @@ function ProcessList({ isAdmin, showNotification }) {
             </tr>
           </thead>
           <tbody>
-            {filteredProcesses.map((proc) => (
-              <tr key={proc.pid} className={isGame(proc.name) ? 'game-process' : ''}>
+            {filteredProcesses.map((proc) => {
+              const rec = recommendFor(proc);
+              const game = isGame(proc.name);
+              const hog = isBandwidthHog(proc.name);
+              const locked = isProtected(proc.name);
+
+              return (
+              <tr key={proc.pid} className={`${game ? 'game-process' : ''} ${locked ? 'protected-process' : ''} ${hog && !game ? 'hog-process' : ''}`.trim()}>
                 <td>
                   <div className="process-name-cell">
-                    <span className="process-icon">{isGame(proc.name) ? '🎮' : '📋'}</span>
+                    <span className="process-icon">{locked ? '🛡️' : game ? '🎮' : hog ? '📥' : '📋'}</span>
                     <span className="process-name">{proc.name}</span>
-                    {isGame(proc.name) && <span className="badge badge-info">Game</span>}
+                    {game && <span className="badge badge-info">Game</span>}
+                    {locked && <span className="badge badge-danger" title={rec.reason}>Anti-cheat</span>}
+                    {!locked && hog && !game && (
+                      <span className="badge badge-warning" title={rec.reason}>Consome banda</span>
+                    )}
                   </div>
                 </td>
                 <td>
@@ -136,35 +143,36 @@ function ProcessList({ isAdmin, showNotification }) {
                     <button
                       className="btn btn-primary btn-sm"
                       onClick={() => handleOptimize(proc)}
-                      disabled={optimizingPid === proc.pid}
-                      title="Otimizar para jogos (prioridade alta + QoS)"
+                      disabled={optimizingPid === proc.pid || !rec.canBoost}
+                      title={rec.reason || 'Otimizar para jogos (prioridade alta + QoS)'}
                     >
                       {optimizingPid === proc.pid ? <div className="loading-spinner" /> : '⚡'} Boost
                     </button>
                     <select
                       className="priority-select"
                       onChange={(e) => handleSetPriority(proc.pid, e.target.value)}
-                      defaultValue=""
+                      defaultValue={proc.priority || ''}
+                      disabled={!rec.canPriority}
+                      title={rec.reason || 'Prioridade de CPU'}
                     >
                       <option value="" disabled>Prioridade</option>
-                      <option value="Realtime">Tempo Real</option>
-                      <option value="High">Alta</option>
-                      <option value="AboveNormal">Acima do Normal</option>
-                      <option value="Normal">Normal</option>
-                      <option value="BelowNormal">Abaixo do Normal</option>
-                      <option value="Low">Baixa</option>
+                      {PRIORITY_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
                     </select>
                     <button
                       className="btn btn-success btn-sm"
                       onClick={() => handleSetNetworkPriority(proc.name)}
-                      title="Definir prioridade máxima de rede (QoS)"
+                      disabled={!rec.canQos}
+                      title={rec.reason || 'Definir prioridade máxima de rede (QoS DSCP 46)'}
                     >
                       🌐 Net
                     </button>
                   </div>
                 </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
 

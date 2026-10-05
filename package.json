@@ -1,30 +1,50 @@
 {
-  "name": "net-optimizer",
-  "version": "1.0.0",
-  "description": "Otimizador de rede para jogos",
+  "name": "willlag",
+  "productName": "willLag",
+  "version": "2.0.0",
+  "description": "Otimizador local de latência para jogos online: TCP/IP, Wi-Fi USB, DNS e MTU — com backup e reversão de cada ajuste",
   "main": "public/electron.js",
   "homepage": "./",
+  "private": true,
+  "author": "willLag",
+  "license": "MIT",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "dev": "npm run electron-dev",
     "electron-dev": "concurrently \"cross-env BROWSER=none npm start\" \"wait-on http://localhost:3000 && electron .\"",
-    "electron-build": "npm run build && electron-builder",
+    "electron": "electron .",
+    "electron-build": "npm run sync-catalog && npm run build && electron-builder",
+    "test": "npm run test:main && npm run test:renderer",
+    "test:main": "node --test \"test/*.test.js\"",
+    "test:renderer": "cross-env CI=true react-scripts test --watchAll=false --env=jsdom",
+    "test:watch": "react-scripts test",
+    "sync-catalog": "node scripts/sync-tweak-catalog.js",
+    "sync-catalog:check": "node scripts/sync-tweak-catalog.js --check",
+    "verify": "npm run sync-catalog:check && npm test",
     "postinstall": "electron-builder install-app-deps"
   },
   "build": {
-    "appId": "com.netoptimizer.app",
-    "productName": "Net Optimizer",
+    "appId": "com.willlag.app",
+    "productName": "willLag",
+    "artifactName": "willLag-Setup-${version}.${ext}",
     "directories": {
       "buildResources": "assets"
     },
+    "files": [
+      "build/**/*",
+      "public/**/*",
+      "package.json"
+    ],
     "win": {
       "target": "nsis",
-      "requestedExecutionLevel": "requireAdministrator"
+      "requestedExecutionLevel": "asInvoker"
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": false,
+      "createDesktopShortcut": true
     }
   },
   "dependencies": {
@@ -43,7 +63,13 @@
     "wait-on": "^7.0.1"
   },
   "browserslist": {
-    "production": [">0.2%", "not dead", "not op_mini all"],
-    "development": ["last 1 chrome version"]
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version"
+    ]
   }
 }
