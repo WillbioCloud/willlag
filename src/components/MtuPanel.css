@@ -1,0 +1,200 @@
+.mtu-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mtu-intro {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.mtu-intro strong { color: var(--text-primary); }
+
+.mtu-current {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  flex-wrap: wrap;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.mtu-current-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.mtu-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.mtu-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.mtu-value.mono { font-family: 'JetBrains Mono', monospace; }
+
+.mtu-current .btn { margin-left: auto; }
+
+.mtu-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mtu-steps-title {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.mtu-steps-list {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.mtu-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 9px;
+  border-radius: 7px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  animation: stepIn 0.2s ease;
+}
+
+.mtu-step.ok { border-color: rgba(0, 214, 143, 0.4); color: var(--success); }
+.mtu-step.fail { border-color: rgba(255, 71, 87, 0.4); color: var(--danger); }
+
+.mtu-step small { font-size: 9px; }
+
+@keyframes stepIn {
+  from { opacity: 0; transform: translateY(-3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.mtu-results {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mtu-result-row {
+  display: grid;
+  grid-template-columns: minmax(180px, 240px) 110px 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.mtu-target { font-size: 12.5px; font-weight: 600; color: var(--text-primary); }
+
+.mtu-result-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent-secondary);
+}
+
+.mtu-result-note {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.mtu-recommendation {
+  padding: 15px 17px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+}
+
+.mtu-recommendation.tone-ok { border-color: rgba(0, 214, 143, 0.35); background: rgba(0, 214, 143, 0.06); }
+.mtu-recommendation.tone-warn { border-color: rgba(255, 170, 0, 0.35); background: rgba(255, 170, 0, 0.06); }
+.mtu-recommendation.tone-info { border-color: rgba(0, 149, 255, 0.35); background: rgba(0, 149, 255, 0.06); }
+.mtu-recommendation.tone-muted { opacity: 0.85; }
+
+.mtu-rec-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.mtu-rec-badge {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.mtu-recommendation p {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.mtu-rec-note { margin-top: 7px; }
+
+.mtu-rec-actions {
+  display: flex;
+  gap: 9px;
+  margin-top: 13px;
+  flex-wrap: wrap;
+}
+
+.mtu-manual {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  flex-wrap: wrap;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-color);
+}
+
+.mtu-manual label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.mtu-manual input {
+  width: 120px;
+  padding: 8px 12px;
+}
+
+.mtu-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.mtu-hint code {
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--bg-card-hover);
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 900px) {
+  .mtu-result-row { grid-template-columns: 1fr; gap: 4px; }
+  .mtu-current .btn { margin-left: 0; }
+}

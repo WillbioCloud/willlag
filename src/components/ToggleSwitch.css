@@ -1,0 +1,96 @@
+.toggle-switch {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  border-radius: 999px;
+  transition: transform 0.12s ease;
+}
+
+.toggle-switch:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 3px;
+}
+
+.toggle-switch:active:not(.is-disabled) {
+  transform: scale(0.94);
+}
+
+.toggle-track {
+  position: relative;
+  display: block;
+  border-radius: 999px;
+  background: var(--bg-card-hover);
+  border: 1px solid var(--border-color);
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: var(--text-muted);
+  transition: left 0.22s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s ease, width 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---- tamanhos ---- */
+.toggle-sm .toggle-track { width: 34px; height: 19px; }
+.toggle-sm .toggle-thumb { width: 13px; height: 13px; left: 3px; }
+.toggle-sm.is-on .toggle-thumb { left: 18px; }
+
+.toggle-md .toggle-track { width: 46px; height: 25px; }
+.toggle-md .toggle-thumb { width: 19px; height: 19px; left: 3px; }
+.toggle-md.is-on .toggle-thumb { left: 24px; }
+
+.toggle-lg .toggle-track { width: 60px; height: 32px; }
+.toggle-lg .toggle-thumb { width: 24px; height: 24px; left: 4px; }
+.toggle-lg.is-on .toggle-thumb { left: 32px; }
+
+/* ---- estado ligado ---- */
+.toggle-switch.is-on .toggle-thumb {
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+.toggle-tone-accent.is-on .toggle-track {
+  background: var(--gradient-1);
+  border-color: transparent;
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.toggle-tone-success.is-on .toggle-track {
+  background: var(--gradient-2);
+  border-color: transparent;
+  box-shadow: 0 0 12px rgba(0, 214, 143, 0.35);
+}
+
+.toggle-tone-warning.is-on .toggle-track {
+  background: linear-gradient(135deg, #ffaa00, #ff8800);
+  border-color: transparent;
+}
+
+/* ---- desabilitado / ocupado ---- */
+.toggle-switch.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
+.toggle-switch.is-busy {
+  cursor: progress;
+}
+
+.toggle-spinner {
+  width: 9px;
+  height: 9px;
+  border: 2px solid rgba(0, 0, 0, 0.25);
+  border-top-color: #1a1a40;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}

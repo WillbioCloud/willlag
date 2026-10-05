@@ -347,3 +347,80 @@ input:focus, select:focus {
 select {
   cursor: pointer;
 }
+/* ============ v2.0: pills da title bar e aviso de recuperação ============ */
+.title-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  -webkit-app-region: no-drag;
+}
+
+.title-pill-on {
+  color: var(--success);
+  background: rgba(0, 214, 143, 0.14);
+  border: 1px solid rgba(0, 214, 143, 0.35);
+}
+
+.title-pill-demo {
+  color: var(--info);
+  background: rgba(0, 149, 255, 0.14);
+  border: 1px solid rgba(0, 149, 255, 0.35);
+}
+
+.title-pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 7px currentColor;
+  animation: pulse 1.6s ease infinite;
+}
+
+.recovery-banner {
+  position: fixed;
+  top: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: min(720px, 92vw);
+  padding: 13px 18px;
+  border-radius: 13px;
+  background: rgba(255, 170, 0, 0.1);
+  border: 1px solid rgba(255, 170, 0, 0.35);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.45);
+  z-index: 9000;
+  animation: slideInNotif 0.3s ease;
+}
+
+.recovery-banner > span:first-child { font-size: 20px; }
+
+.recovery-banner div { flex: 1; min-width: 0; }
+
+.recovery-banner strong {
+  display: block;
+  font-size: 12.5px;
+  color: var(--warning);
+  margin-bottom: 3px;
+}
+
+.recovery-banner p {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.recovery-banner .tb-btn {
+  width: 26px;
+  height: 26px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}

@@ -1,11 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import ipc from '../services/ipc';
 import './Optimizer.css';
 
-const { ipcRenderer } = window.require('electron');
 
-function Optimizer({ isAdmin, showNotification }) {
+function Optimizer({ isAdmin, showNotification, onNavigate }) {
   const [optimizing, setOptimizing] = useState({});
   const [results, setResults] = useState([]);
+  const [backupInfo, setBackupInfo] = useState(null);
+  const [systemCtx, setSystemCtx] = useState(null);
+  const [busyAll, setBusyAll] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    ipc.invoke('get-backups').then((r) => { if (alive && r) setBackupInfo(r); }).catch(() => {});
+    ipc.invoke('get-system-context').then((r) => { if (alive && r) setSystemCtx(r); }).catch(() => {});
+    return () => { alive = false; };
+  }, []);
+
+  const handleRevertAll = async () => {
+    if (!window.confirm('Reverter TODOS os ajustes para o estado anterior (a partir dos backups)?')) return;
+    setBusyAll(true);
+    try {
+      const res = await ipc.invoke('revert-all');
+      showNotification(res.message, res.success ? 'success' : 'error');
+      const info = await ipc.invoke('get-backups');
+      setBackupInfo(info);
+    } finally {
+      setBusyAll(false);
+    }
+  };
+
+  const handleExport = async () => {
+    const res = await ipc.invoke('export-backup-reg');
+    showNotification(res.message || (res.success ? 'Backup exportado.' : 'Falha ao exportar.'), res.success ? 'success' : 'error');
+  };
 
   const optimizations = [
     {
@@ -55,7 +83,7 @@ function Optimizer({ isAdmin, showNotification }) {
     setOptimizing(prev => ({ ...prev, [opt.id]: true }));
 
     try {
-      const result = await ipcRenderer.invoke(opt.handler);
+      const result = await ipc.invoke(opt.handler);
 
       if (result.success) {
         showNotification(result.message, 'success');
@@ -93,6 +121,86 @@ function Optimizer({ isAdmin, showNotification }) {
           </div>
         </div>
       )}
+
+      {/* Atalho para o modo completo */}
+      <div className="card optimizer-hero">
+        <div className="optimizer-hero-text">
+          <h3>🚀 Quer tudo de uma vez, com backup e rollback automático?</h3>
+          <p>
+            A aba <strong>Ultra Low-Latency</strong> tem o botão principal do Modo Jogo, toggles
+            individuais para cada ajuste (TCP/IP, Wi-Fi, energia USB, DNS e MTU),
+            medição de ganho real (antes/depois) e guarda de conectividade que reverte tudo se a rede cair.
+          </p>
+        </div>
+        <button className="btn btn-primary" onClick={() => onNavigate && onNavigate('lowlatency')}>
+          Abrir Ultra Low-Latency →
+        </button>
+      </div>
+
+      {/* Contexto do sistema */}
+      {systemCtx && (
+        <div className="card system-context-card">
+          <div className="ctx-item">
+            <span className="ctx-label">Sistema</span>
+            <span className="ctx-value">
+              {systemCtx.platform ? `${systemCtx.platform.windowsVersion} (build ${systemCtx.platform.windowsBuild})` : '—'}
+            </span>
+          </div>
+          <div className="ctx-item">
+            <span className="ctx-label">Privilégios</span>
+            <span className="ctx-value" style={{ color: isAdmin ? 'var(--success)' : 'var(--warning)' }}>
+              {isAdmin ? 'Administrador' : 'Usuário padrão'}
+            </span>
+          </div>
+          <div className="ctx-item">
+            <span className="ctx-label">Interface ativa</span>
+            <span className="ctx-value">
+              {systemCtx.activeAdapter
+                ? `${systemCtx.activeAdapter.name}${systemCtx.activeAdapter.isWifi ? ' (Wi-Fi)' : ''}${systemCtx.activeAdapter.isUsb ? ' · USB' : ''}`
+                : '—'}
+            </span>
+          </div>
+          <div className="ctx-item">
+            <span className="ctx-label">Backups salvos</span>
+            <span className="ctx-value mono">
+              {backupInfo ? Object.keys(backupInfo.backups || {}).length : '—'}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Backup e restauração */}
+      <div className="card backup-card">
+        <div className="card-header">
+          <h3>💾 Backup e restauração</h3>
+          <div className="backup-actions">
+            <button className="btn btn-outline btn-sm" onClick={handleExport}>
+              💾 Exportar (.reg + .json)
+            </button>
+            <button className="btn btn-danger btn-sm" onClick={handleRevertAll} disabled={busyAll}>
+              {busyAll ? <span className="loading-spinner" /> : '🧯'} Reverter tudo
+            </button>
+          </div>
+        </div>
+        <p className="backup-desc">
+          Antes de cada alteração o willLag grava o valor anterior (inclusive quando o valor não
+          existia). "Reverter tudo" restaura exatamente o estado original — não apenas "o padrão do
+          Windows". O arquivo <code>.reg</code> exportado pode ser aplicado com dois cliques, mesmo
+          sem o willLag instalado.
+        </p>
+        {backupInfo && backupInfo.history && backupInfo.history.length > 0 && (
+          <div className="backup-history">
+            {backupInfo.history.slice(0, 6).map((h, i) => (
+              <div key={i} className="backup-history-item">
+                <span className={`bh-dot ${h.success === false ? 'fail' : 'ok'}`} />
+                <span className="bh-action">{h.action === 'apply' ? 'Aplicado' : 'Revertido'}</span>
+                <span className="bh-id">{h.tweakId}</span>
+                <span className="bh-time">{new Date(h.ts).toLocaleTimeString()}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Cards de otimização */}
       <div className="optimization-grid">

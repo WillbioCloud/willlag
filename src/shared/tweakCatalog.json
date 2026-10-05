@@ -1,0 +1,700 @@
+{
+  "$schema": "willlag/tweak-catalog@1",
+  "generatedAt": "2026-10-05T03:22:50.876Z",
+  "generator": "scripts/sync-tweak-catalog.js",
+  "note": "ARQUIVO GERADO — não edite à mão. Fonte de verdade: public/services/{tcpip,wifi,dnsService,mtuService}.js. Regenere com: node scripts/sync-tweak-catalog.js",
+  "groups": [
+    {
+      "id": "tcpip",
+      "label": "Pilha TCP/IP e Registro",
+      "icon": "🧠",
+      "description": "Nagle, throttling multimídia, auto-tuning, ECN, provedor de congestionamento."
+    },
+    {
+      "id": "wifi",
+      "label": "Wi-Fi e energia USB",
+      "icon": "📶",
+      "description": "Varredura em segundo plano, selective suspend e economia de energia do adaptador."
+    },
+    {
+      "id": "dns",
+      "label": "DNS",
+      "icon": "🌐",
+      "description": "Resolvedor de menor latência e jitter, com flush de cache."
+    },
+    {
+      "id": "routing",
+      "label": "Roteamento e MTU",
+      "icon": "🧭",
+      "description": "MTU do caminho para eliminar fragmentação de pacotes UDP."
+    }
+  ],
+  "riskLabels": {
+    "low": {
+      "label": "Baixo risco",
+      "color": "success"
+    },
+    "medium": {
+      "label": "Risco médio",
+      "color": "warning"
+    },
+    "high": {
+      "label": "Risco alto",
+      "color": "danger"
+    }
+  },
+  "presets": [
+    {
+      "id": "ultra",
+      "label": "Modo Ultra Low-Latency",
+      "description": "Todos os ajustes recomendados: TCP/IP, Wi-Fi/USB, DNS e prioridades multimídia.",
+      "tweakIds": [
+        "nagle",
+        "networkThrottling",
+        "systemResponsiveness",
+        "mmcssGames",
+        "autoTuning",
+        "ecn",
+        "tcpFastOpen",
+        "rss",
+        "congestionProvider",
+        "wlanAutoconfig",
+        "usbSelectiveSuspend",
+        "adapterPowerManagement",
+        "autoDns"
+      ]
+    },
+    {
+      "id": "safe",
+      "label": "Conservador (baixo risco)",
+      "description": "Apenas ajustes de baixo risco, sem mexer em driver nem em DNS.",
+      "tweakIds": [
+        "nagle",
+        "networkThrottling",
+        "mmcssGames",
+        "autoTuning",
+        "ecn",
+        "tcpFastOpen",
+        "rss",
+        "usbSelectiveSuspend",
+        "adapterPowerManagement",
+        "autoDns"
+      ]
+    },
+    {
+      "id": "wifi",
+      "label": "Só Wi-Fi / USB",
+      "description": "Focado em eliminar lag spikes de adaptadores Wi-Fi USB.",
+      "tweakIds": [
+        "wlanAutoconfig",
+        "usbSelectiveSuspend",
+        "adapterPowerManagement",
+        "adapterPowerSaveAdvanced"
+      ]
+    },
+    {
+      "id": "all",
+      "label": "Tudo",
+      "description": "Todos os ajustes disponíveis, inclusive os opcionais e legados.",
+      "tweakIds": [
+        "nagle",
+        "networkThrottling",
+        "systemResponsiveness",
+        "mmcssGames",
+        "autoTuning",
+        "ecn",
+        "tcpFastOpen",
+        "rss",
+        "congestionProvider",
+        "rsc",
+        "timestamps",
+        "initialRto",
+        "chimneyOffload",
+        "qosReservedBandwidth",
+        "wlanAutoconfig",
+        "usbSelectiveSuspend",
+        "adapterPowerManagement",
+        "adapterPowerSaveAdvanced",
+        "autoDns",
+        "mtuOptimize"
+      ]
+    },
+    {
+      "id": "legacy",
+      "label": "Compatibilidade (versão anterior)",
+      "description": "Reproduz o comportamento do \"Otimizar TCP/IP\" da versão 1.0.",
+      "tweakIds": [
+        "autoTuning",
+        "timestamps",
+        "rss",
+        "ecn",
+        "chimneyOffload",
+        "congestionProvider",
+        "tcpFastOpen"
+      ]
+    }
+  ],
+  "tweaks": [
+    {
+      "id": "nagle",
+      "group": "tcpip",
+      "groupLabel": "Pilha TCP/IP e Registro",
+      "groupIcon": "🧠",
+      "label": "Desativar Nagle's Algorithm (TCP_NODELAY)",
+      "description": "Envia cada pacote imediatamente, sem esperar acumular dados ou o ACK atrasado.",
+      "why": "O algoritmo de Nagle segura pacotes pequenos até receber ACK (até ~40-200ms com delayed ACK). Pacotes de jogo têm 40-120 bytes e são enviados 20-60x por segundo — exatamente o pior caso para Nagle. TcpAckFrequency=1 força ACK a cada pacote e TCPNoDelay=1 desliga o buffer de saída.",
+      "risk": "low",
+      "riskLabel": "Baixo risco",
+      "riskColor": "success",
+      "requiresAdmin": true,
+      "scope": "persistent",
+      "defaultInPreset": true,
+      "sessionCritical": false,
+      "rebootRecommended": false,
+      "needsDiscovery": false,
+      "legacy": false,
+      "options": [
+        {
+          "value": false,
+          "label": "Somente a interface ativa (recomendado)"
+        },
+        {
+          "value": true,
+          "label": "Todas as interfaces com IP"
+        }
+      ],
+      "order": 0
+    },
+    {
+      "id": "networkThrottling",
+      "group": "tcpip",
+      "groupLabel": "Pilha TCP/IP e Registro",
+      "groupIcon": "🧠",
+      "label": "Desativar Network Throttling (MMCSS)",
+      "description": "NetworkThrottlingIndex = 0xffffffff (sem limite de pacotes/ms para multimídia).",
+      "why": "Por padrão o Windows limita o tráfego de rede não-multimídia a 10 pacotes/ms enquanto há uma sessão MMCSS ativa (jogos e players de áudio registram sessões MMCSS). Em jogos com tick rate alto ou voice chat simultâneo, esse limite causa micro-stalls. 0xffffffff remove o teto.",
+      "risk": "low",
+      "riskLabel": "Baixo risco",
+      "riskColor": "success",
+      "requiresAdmin": true,
+      "scope": "persistent",
+      "defaultInPreset": true,
+      "sessionCritical": false,
+      "rebootRecommended": false,
+      "needsDiscovery": false,
+      "legacy": false,
+      "options": null,
+      "order": 1
+    },
+    {
+      "id": "systemResponsiveness",
+      "group": "tcpip",
+      "groupLabel": "Pilha TCP/IP e Registro",
+      "groupIcon": "🧠",
+      "label": "System Responsiveness = 0 (100% para o jogo)",
+      "description": "Remove a reserva de CPU para tarefas de segundo plano durante sessões multimídia.",
+      "why": "SystemResponsiveness=20 (padrão) reserva 20% da CPU para tarefas em segundo plano. Com 0, o agendador dedica tudo ao jogo — menos preempção, menos variação de frame time e menos jitter na thread de rede. Efeito colateral: downloads/updates em segundo plano ficam mais lentos.",
+      "risk": "medium",
+      "riskLabel": "Risco médio",
+      "riskColor": "warning",
+      "requiresAdmin": true,
+      "scope": "persistent",
+      "defaultInPreset": true,
+      "sessionCritical": false,
+      "rebootRecommended": false,
+      "needsDiscovery": false,
+      "legacy": false,
+      "options": [
+        {
+          "value": 0,
+          "label": "0 — agressivo (máximo para o jogo)"
+        },
+        {
+          "value": 10,
+          "label": "10 — equilibrado (recomendado se houver stream/download)"
+        },
+        {
+          "value": 20,
+          "label": "20 — padrão do Windows"
+        }
+      ],
+      "order": 2
+    },
+    {
+      "id": "mmcssGames",
+      "group": "tcpip",
+      "groupLabel": "Pilha TCP/IP e Registro",
+      "groupIcon": "🧠",
+      "label": "Priorizar tarefas MMCSS de jogos",
+      "description": "GPU Priority=8, Priority=6, Scheduling Category=High, SFIO Priority=High.",
+      "why": "A chave Tasks\\Games do MMCSS define como o Windows agenda threads marcadas como \"Games\". Elevar GPU Priority e SFIO Priority reduz a chance de o thread de render/rede perder a CPU para serviços em segundo plano — fonte comum de stutter periódico.",
+      "risk": "low",
+      "riskLabel": "Baixo risco",
+      "riskColor": "success",
+      "requiresAdmin": true,
+      "scope": "persistent",
+      "defaultInPreset": true,
+      "sessionCritical": false,
+      "rebootRecommended": false,
+      "needsDiscovery": false,
+      "legacy": false,
+      "options": null,
+      "order": 3
+    },
+    {
+      "id": "autoTuning",
+      "group": "tcpip",
+      "groupLabel": "Pilha TCP/IP e Registro",
+      "groupIcon": "🧠",
+      "label": "TCP Auto-Tuning = normal",
+      "description": "Mantém a janela de recepção dinâmica no modo recomendado pela Microsoft.",
+      "why": "Auto-tuning em \"disabled\" trava a janela de recepção em 64KB, o que derruba throughput e faz o TCP entrar em congestionamento com mais frequência (mais retransmissões = mais jitter). \"restricted\"/\"highlyrestricted\" limitam o crescimento. \"normal\" é o ponto ótimo para jogos: janela cresce quando precisa, sem inflar buffers a ponto de causar bufferbloat.",
+      "risk": "low",
+      "riskLabel": "Baixo risco",
+      "riskColor": "success",
+      "requiresAdmin": true,
+      "scope": "persistent",
+      "defaultInPreset": true,
+      "sessionCritical": false,
+      "rebootRecommended": false,
+      "needsDiscovery": false,
+      "legacy": false,
+      "options": [
+        {
+          "value": "normal",
+          "label": "normal (recomendado)"
+        },
+        {
+          "value": "disabled",
+          "label": "disabled (janela fixa 64KB — legacy)"
+        },
+        {
+          "value": "restricted",
+          "label": "restricted"
+        },
+        {
+          "value": "highlyrestricted",
+          "label": "highlyrestricted"
+        },
+        {
+          "value": "experimental",
+          "label": "experimental"
+        }
+      ],
+      "order": 4
+    },
+    {
+      "id": "ecn",
+      "group": "tcpip",
+      "groupLabel": "Pilha TCP/IP e Registro",
+      "groupIcon": "🧠",
+      "label": "Desativar ECN Capability",
+      "description": "Evita negociação explícita de congestionamento com roteadores problemáticos.",
+      "why": "ECN marca pacotes em vez de descartá-los, mas muitos roteadores domésticos e pontos de Wi-Fi implementam mal o RFC 3168 e acabam descartando pacotes com bits ECN setados — o que aparece como perda aleatória e spike de ping. Desativar elimina essa classe de falha. Se sua rede é moderna (roteador recente + cabo), manter habilitado também é válido.",
+      "risk": "low",
+      "riskLabel": "Baixo risco",
+      "riskColor": "success",
+      "requiresAdmin": true,
+      "scope": "persistent",
+      "defaultInPreset": true,
+      "sessionCritical": false,
+      "rebootRecommended": false,
+      "needsDiscovery": false,
+      "legacy": false,
+      "options": [
+        {
+          "value": "disabled",
+          "label": "disabled (recomendado p/ Wi-Fi e roteadores antigos)"
+        },
+        {
+          "value": "enabled",
+          "label": "enabled"
+        },
+        {
+          "value": "default",
+          "label": "default"
+        }
+      ],
+      "order": 5
+    },
+    {
+      "id": "tcpFastOpen",
+      "group": "tcpip",
+      "groupLabel": "Pilha TCP/IP e Registro",
+      "groupIcon": "🧠",
+      "label": "TCP Fast Open (TFO)",
+      "description": "Permite enviar dados já no SYN, cortando 1 RTT na abertura de conexão.",
+      "why": "Em handshakes de lobby/autenticação (login do jogo, matchmaking, HTTP do launcher) cada RTT economizado é latência a menos. TFO não afeta o tráfego UDP do jogo em si, mas acelera toda a negociação inicial.",
+      "risk": "low",
+      "riskLabel": "Baixo risco",
+      "riskColor": "success",
+      "requiresAdmin": true,
+      "scope": "persistent",
+      "defaultInPreset": true,
+      "sessionCritical": false,
+      "rebootRecommended": false,
+      "needsDiscovery": false,
+      "legacy": false,
+      "options": null,
+      "order": 6
+    },
+    {
+      "id": "rss",
+      "group": "tcpip",
+      "groupLabel": "Pilha TCP/IP e Registro",
+      "groupIcon": "🧠",
+      "label": "Receive Side Scaling (RSS)",
+      "description": "Distribui o processamento de pacotes entre vários núcleos de CPU.",
+      "why": "Sem RSS, toda a interrupção de rede cai em um único núcleo — que pode estar ocupado com o jogo. Com RSS o trabalho é paralelo, reduzindo o tempo entre a chegada do pacote e a entrega ao socket (menos jitter de processamento). Essencial em adaptadores USB, que já consomem CPU extra.",
+      "risk": "low",
+      "riskLabel": "Baixo risco",
+      "riskColor": "success",
+      "requiresAdmin": true,
+      "scope": "persistent",
+      "defaultInPreset": true,
+      "sessionCritical": false,
+      "rebootRecommended": false,
+      "needsDiscovery": false,
+      "legacy": false,
+      "options": null,
+      "order": 7
+    },
+    {
+      "id": "congestionProvider",
+      "group": "tcpip",
+      "groupLabel": "Pilha TCP/IP e Registro",
+      "groupIcon": "🧠",
+      "label": "Provedor de congestionamento (CTCP / CUBIC)",
+      "description": "Define o algoritmo de controle de congestionamento do template Internet.",
+      "why": "CTCP (Compound TCP) é mais agressivo em enlaces com banda×atraso alta e sobe a janela mais rápido — bom para downloads de patch, mas pode gerar bufferbloat (jitter) se o enlace saturar. CUBIC é o padrão do Windows 10/11 e é mais estável. BBR NÃO existe na pilha nativa do Windows: o willLag nunca promete ativá-lo, apenas detecta se o sistema oferece a opção.",
+      "risk": "medium",
+      "riskLabel": "Risco médio",
+      "riskColor": "warning",
+      "requiresAdmin": true,
+      "scope": "persistent",
+      "defaultInPreset": true,
+      "sessionCritical": false,
+      "rebootRecommended": false,
+      "needsDiscovery": false,
+      "legacy": false,
+      "options": [
+        {
+          "value": "auto",
+          "label": "auto — usa o melhor disponível no sistema"
+        },
+        {
+          "value": "ctcp",
+          "label": "ctcp (Compound TCP — mais agressivo)"
+        },
+        {
+          "value": "cubic",
+          "label": "cubic (padrão Win10/11 — mais estável)"
+        }
+      ],
+      "order": 8
+    },
+    {
+      "id": "rsc",
+      "group": "tcpip",
+      "groupLabel": "Pilha TCP/IP e Registro",
+      "groupIcon": "🧠",
+      "label": "Desativar Receive Segment Coalescing (RSC)",
+      "description": "Entrega os pacotes ao socket sem agregá-los antes.",
+      "why": "RSC junta vários segmentos TCP em um único antes de subir para a pilha, economizando CPU mas adicionando alguns milissegundos de espera. Desativar reduz a latência de entrega; o custo é mais CPU em conexões de alto throughput. Recomendado apenas se você tem CPU sobrando.",
+      "risk": "medium",
+      "riskLabel": "Risco médio",
+      "riskColor": "warning",
+      "requiresAdmin": true,
+      "scope": "persistent",
+      "defaultInPreset": false,
+      "sessionCritical": false,
+      "rebootRecommended": false,
+      "needsDiscovery": false,
+      "legacy": false,
+      "options": [
+        {
+          "value": "disabled",
+          "label": "disabled (menor latência)"
+        },
+        {
+          "value": "enabled",
+          "label": "enabled (menor CPU — padrão)"
+        }
+      ],
+      "order": 9
+    },
+    {
+      "id": "timestamps",
+      "group": "tcpip",
+      "groupLabel": "Pilha TCP/IP e Registro",
+      "groupIcon": "🧠",
+      "label": "Desativar RFC 1323 Timestamps",
+      "description": "Remove 12 bytes de overhead do cabeçalho TCP.",
+      "why": "Timestamps habilita PAWS e melhora a estimativa de RTT, mas adiciona 12 bytes por segmento. Em Wi-Fi, onde cada byte aéreo custa tempo, desativar pode reduzir marginalmente o tempo de transmissão. Trade-off real: pior estimativa de RTT em redes com reordenação. Teste com o Monitor de Rede antes de manter.",
+      "risk": "medium",
+      "riskLabel": "Risco médio",
+      "riskColor": "warning",
+      "requiresAdmin": true,
+      "scope": "persistent",
+      "defaultInPreset": false,
+      "sessionCritical": false,
+      "rebootRecommended": false,
+      "needsDiscovery": false,
+      "legacy": true,
+      "options": [
+        {
+          "value": "disabled",
+          "label": "disabled"
+        },
+        {
+          "value": "enabled",
+          "label": "enabled"
+        }
+      ],
+      "order": 10
+    },
+    {
+      "id": "initialRto",
+      "group": "tcpip",
+      "groupLabel": "Pilha TCP/IP e Registro",
+      "groupIcon": "🧠",
+      "label": "Initial RTO = 1000ms",
+      "description": "Reduz o timeout inicial de retransmissão de 3s para 1s.",
+      "why": "Quando o SYN de conexão (login, matchmaking, handshake TLS do launcher) se perde, o Windows espera 3 segundos antes de retransmitir. Com 1s a recuperação é 3x mais rápida. Não afeta a latência em regime permanente, apenas o tempo de estabelecimento após perda.",
+      "risk": "low",
+      "riskLabel": "Baixo risco",
+      "riskColor": "success",
+      "requiresAdmin": true,
+      "scope": "persistent",
+      "defaultInPreset": false,
+      "sessionCritical": false,
+      "rebootRecommended": false,
+      "needsDiscovery": false,
+      "legacy": false,
+      "options": [
+        {
+          "value": "1000",
+          "label": "1000 ms (recomendado)"
+        },
+        {
+          "value": "2000",
+          "label": "2000 ms"
+        },
+        {
+          "value": "3000",
+          "label": "3000 ms (padrão)"
+        }
+      ],
+      "order": 11
+    },
+    {
+      "id": "chimneyOffload",
+      "group": "tcpip",
+      "groupLabel": "Pilha TCP/IP e Registro",
+      "groupIcon": "🧠",
+      "label": "Chimney Offload = disabled (legado)",
+      "description": "Mantido apenas para compatibilidade com versões antigas do Windows.",
+      "why": "TCP Chimney foi descontinuado no Windows 8/Server 2012 e removido nas versões modernas. O comando costuma retornar \"parâmetro incorreto\". Incluímos como legado e fora do preset.",
+      "risk": "low",
+      "riskLabel": "Baixo risco",
+      "riskColor": "success",
+      "requiresAdmin": true,
+      "scope": "persistent",
+      "defaultInPreset": false,
+      "sessionCritical": false,
+      "rebootRecommended": false,
+      "needsDiscovery": false,
+      "legacy": true,
+      "options": null,
+      "order": 12
+    },
+    {
+      "id": "qosReservedBandwidth",
+      "group": "tcpip",
+      "groupLabel": "Pilha TCP/IP e Registro",
+      "groupIcon": "🧠",
+      "label": "Liberar banda reservada por QoS (Psched)",
+      "description": "NonBestEffortLimit = 0 na política de agendador de pacotes.",
+      "why": "O agendador de pacotes do Windows pode reservar até 20% do enlace para tráfego com QoS. Zerar o limite devolve essa banda ao tráfego comum. Em enlaces saturados (download + jogo) isso reduz a fila e, portanto, o jitter.",
+      "risk": "low",
+      "riskLabel": "Baixo risco",
+      "riskColor": "success",
+      "requiresAdmin": true,
+      "scope": "persistent",
+      "defaultInPreset": false,
+      "sessionCritical": false,
+      "rebootRecommended": false,
+      "needsDiscovery": false,
+      "legacy": false,
+      "options": null,
+      "order": 13
+    },
+    {
+      "id": "wlanAutoconfig",
+      "group": "wifi",
+      "groupLabel": "Wi-Fi e energia USB",
+      "groupIcon": "📶",
+      "label": "Pausar varredura de redes em segundo plano (WLAN AutoConfig)",
+      "description": "netsh wlan set autoconfig enabled=no — elimina os picos de ping causados pela varredura periódica de canais.",
+      "why": "Com o AutoConfig ligado, o Windows sai do canal atual a cada 30-60s para procurar redes melhores. Enquanto o rádio está off-channel, seus pacotes de jogo ficam na fila do driver: é o clássico \"lag spike a cada minuto\". Desligar durante a partida congela o rádio no canal atual. Custo: o Windows não reconecta sozinho se a conexão cair — por isso o willLag reverte automaticamente ao sair do Modo Jogo (e imediatamente se detectar queda de conectividade).",
+      "risk": "medium",
+      "riskLabel": "Risco médio",
+      "riskColor": "warning",
+      "requiresAdmin": true,
+      "scope": "session",
+      "defaultInPreset": true,
+      "sessionCritical": true,
+      "rebootRecommended": false,
+      "needsDiscovery": false,
+      "legacy": false,
+      "options": null,
+      "order": 14
+    },
+    {
+      "id": "usbSelectiveSuspend",
+      "group": "wifi",
+      "groupLabel": "Wi-Fi e energia USB",
+      "groupIcon": "📶",
+      "label": "Desativar USB Selective Suspend",
+      "description": "Impede que o Windows corte a energia de portas/dongles USB ociosos.",
+      "why": "O selective suspend desliga o dispositivo USB após alguns segundos sem tráfego. Ao voltar, o dongle Wi-Fi precisa re-enumerar/reinicializar o rádio — o primeiro pacote depois do idle é perdido ou atrasado em centenas de ms. Em menus de lobby (pouco tráfego) isso aparece como spike exatamente quando a partida começa.",
+      "risk": "low",
+      "riskLabel": "Baixo risco",
+      "riskColor": "success",
+      "requiresAdmin": true,
+      "scope": "persistent",
+      "defaultInPreset": true,
+      "sessionCritical": false,
+      "rebootRecommended": false,
+      "needsDiscovery": false,
+      "legacy": false,
+      "options": null,
+      "order": 15
+    },
+    {
+      "id": "adapterPowerManagement",
+      "group": "wifi",
+      "groupLabel": "Wi-Fi e energia USB",
+      "groupIcon": "📶",
+      "label": "Desativar economia de energia do adaptador de rede",
+      "description": "Desmarca \"O computador pode desligar este dispositivo para economizar energia\" e desativa sleep/coalescing do driver.",
+      "why": "Além da caixa do Gerenciador de Dispositivos, o driver expõe vários estados de economia: DeviceSleepOnDisconnect (dorme ao desconectar), SelectiveSuspend (USB), PMWiFiRekeyOffload e D0PacketCoalescing — este último agrega pacotes antes de entregá-los à pilha, adicionando atraso variável mesmo com o PC ligado na tomada.",
+      "risk": "low",
+      "riskLabel": "Baixo risco",
+      "riskColor": "success",
+      "requiresAdmin": true,
+      "scope": "persistent",
+      "defaultInPreset": true,
+      "sessionCritical": false,
+      "rebootRecommended": false,
+      "needsDiscovery": false,
+      "legacy": false,
+      "options": null,
+      "order": 16
+    },
+    {
+      "id": "adapterPowerSaveAdvanced",
+      "group": "wifi",
+      "groupLabel": "Wi-Fi e energia USB",
+      "groupIcon": "📶",
+      "label": "Desativar economia de energia no driver (propriedades avançadas)",
+      "description": "Zera Power Saving Mode / U-APSD / EEE (Green Ethernet) e reduz Roaming Aggressiveness — detectados por fabricante.",
+      "why": "Cada fabricante expõe a economia de energia com um nome diferente (Realtek: \"Power Saving Mode\"; Intel: \"U-APSD support\" / \"Advanced EEE\"; TP-Link: \"Green Ethernet\"). O willLag enumera as propriedades reais do SEU driver, faz backup dos valores atuais e aplica o valor de maior performance — sem chutar nomes que não existem.",
+      "risk": "medium",
+      "riskLabel": "Risco médio",
+      "riskColor": "warning",
+      "requiresAdmin": true,
+      "scope": "persistent",
+      "defaultInPreset": false,
+      "sessionCritical": false,
+      "rebootRecommended": false,
+      "needsDiscovery": false,
+      "legacy": false,
+      "options": null,
+      "order": 17
+    },
+    {
+      "id": "autoDns",
+      "group": "dns",
+      "groupLabel": "DNS",
+      "groupIcon": "🌐",
+      "label": "DNS automático de menor latência e jitter",
+      "description": "Mede os resolvedores públicos e aplica o de melhor score (média + p95 + jitter + perda).",
+      "why": "Um resolvedor lento não aumenta o ping da partida, mas causa travadas de 2-5s em login, matchmaking, loja e download de patch — e timeouts de resolução derrubam clientes anti-cheat. O score prioriza *estabilidade* (jitter/p95), não só média: de nada adianta resolver em 5ms se 1 em cada 20 consultas leva 900ms.",
+      "risk": "low",
+      "riskLabel": "Baixo risco",
+      "riskColor": "success",
+      "requiresAdmin": true,
+      "scope": "persistent",
+      "defaultInPreset": true,
+      "sessionCritical": false,
+      "rebootRecommended": false,
+      "needsDiscovery": false,
+      "legacy": false,
+      "options": [
+        {
+          "value": "cloudflare",
+          "label": "Cloudflare (1.1.1.1)"
+        },
+        {
+          "value": "cloudflare-malware",
+          "label": "Cloudflare (anti-malware) (1.1.1.2)"
+        },
+        {
+          "value": "cloudflare-family",
+          "label": "Cloudflare (família) (1.1.1.3)"
+        },
+        {
+          "value": "google",
+          "label": "Google Public DNS (8.8.8.8)"
+        },
+        {
+          "value": "quad9",
+          "label": "Quad9 (9.9.9.9)"
+        },
+        {
+          "value": "opendns",
+          "label": "OpenDNS (Cisco) (208.67.222.222)"
+        },
+        {
+          "value": "adguard",
+          "label": "AdGuard DNS (94.140.14.14)"
+        },
+        {
+          "value": "level3",
+          "label": "Level3 / CenturyLink (4.2.2.2)"
+        },
+        {
+          "value": "auto",
+          "label": "auto — medir e escolher o melhor"
+        },
+        {
+          "value": "dhcp",
+          "label": "dhcp — voltar para o DNS do roteador"
+        }
+      ],
+      "order": 18
+    },
+    {
+      "id": "mtuOptimize",
+      "group": "routing",
+      "groupLabel": "Roteamento e MTU",
+      "groupIcon": "🧭",
+      "label": "MTU ideal (evitar fragmentação UDP)",
+      "description": "Descobre o MTU real do caminho com ping DF e ajusta a interface ativa para não fragmentar pacotes de jogo.",
+      "why": "Datagrama UDP fragmentado: se um único fragmento se perde, o jogo descarta a mensagem inteira. Em PPPoE (1492) ou túneis de VPN, deixar o MTU em 1500 significa que TODO pacote grande é fragmentado — e a perda de pacotes percebida pelo jogo sobe mesmo com enlace saudável.",
+      "risk": "medium",
+      "riskLabel": "Risco médio",
+      "riskColor": "warning",
+      "requiresAdmin": true,
+      "scope": "persistent",
+      "defaultInPreset": false,
+      "sessionCritical": false,
+      "rebootRecommended": false,
+      "needsDiscovery": true,
+      "legacy": false,
+      "options": null,
+      "order": 19
+    }
+  ]
+}

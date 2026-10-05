@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import ipc from '../services/ipc';
 import './Dashboard.css';
 
-const { ipcRenderer } = window.require('electron');
 
 function Dashboard({ isAdmin, showNotification }) {
   const [pingResults, setPingResults] = useState([]);
@@ -13,27 +13,25 @@ function Dashboard({ isAdmin, showNotification }) {
     loadNetworkInfo();
     runQuickPing();
 
-    const handler = (event, data) => {
-      setCurrentPing(data);
-    };
+    const handler = (data) => setCurrentPing(data);
 
-    ipcRenderer.on('ping-result', handler);
-    ipcRenderer.send('start-ping-monitor', '8.8.8.8');
+    const off = ipc.on('ping-result', handler);
+    ipc.send('start-ping-monitor', '8.8.8.8');
 
     return () => {
-      ipcRenderer.removeListener('ping-result', handler);
-      ipcRenderer.send('stop-ping-monitor');
+      off();
+      ipc.send('stop-ping-monitor');
     };
   }, []);
 
   const loadNetworkInfo = async () => {
-    const info = await ipcRenderer.invoke('get-network-info');
+    const info = await ipc.invoke('get-network-info');
     setNetworkInfo(info);
   };
 
   const runQuickPing = async () => {
     setLoading(true);
-    const results = await ipcRenderer.invoke('speed-test');
+    const results = await ipc.invoke('speed-test');
     setPingResults(results);
     setLoading(false);
   };
